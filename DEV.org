@@ -1,0 +1,4 @@
+* release
+#+begin_src shell
+cargo readme > README.md
+#+end_src
