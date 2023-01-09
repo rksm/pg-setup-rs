@@ -2,8 +2,8 @@
 
 Very simple helper to create and drop Postgres databases. Useful for tests.
 
-Note: This expects that you have the [sqlx-cli](https://github.com/launchbadge/sqlx)
-installed: `cargo install sqlx-cli`.
+Note: For now this makes use of sqlx, in particular it expects that you have
+[sqlx-cli](https://github.com/launchbadge/sqlx) installed: `cargo install sqlx-cli`.
 
 Example:
 ```rust
