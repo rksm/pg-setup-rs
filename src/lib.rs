@@ -1,8 +1,8 @@
 /*!
 
-[![Crates.io](https://img.shields.io/crates/v/pg-helper)](https://crates.io/crates/pg-helper)
-[![](https://docs.rs/pg-helper/badge.svg)](https://docs.rs/pg-helper)
-[![License](https://img.shields.io/crates/l/pg-helper?color=informational&logo=mit)](/LICENSE.md)
+[![Crates.io](https://img.shields.io/crates/v/pg-setup)](https://crates.io/crates/pg-setup)
+[![](https://docs.rs/pg-setup/badge.svg)](https://docs.rs/pg-setup)
+[![License](https://img.shields.io/crates/l/pg-setup?color=informational&logo=mit)](/LICENSE.md)
 
 Simple helper to create and drop Postgres databases. Useful for tests.
 
@@ -11,11 +11,11 @@ Use the `sqlx` feature for that.
 
 Example:
 ```rust
-# use pg_helper::{PostgresDBBuilder, Result};
+# use pg_setup::{PostgresDBBuilder, Result};
 #
 # #[tokio::main]
 # async fn main() -> Result<()> {
-    let db_uri = "postgres://localhost:5432/pg_helper_example";
+    let db_uri = "postgres://localhost:5432/pg_setup_example";
 
     let db = PostgresDBBuilder::new(db_uri)
         .schema("public")

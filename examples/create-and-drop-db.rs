@@ -1,14 +1,14 @@
-use pg_helper::{PostgresDBBuilder, Result};
+use pg_setup::{PostgresDBBuilder, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
-            tracing_subscriber::EnvFilter::builder().parse_lossy("info,pg_helper=debug"),
+            tracing_subscriber::EnvFilter::builder().parse_lossy("info,pg_setup=debug"),
         )
         .init();
 
-    let db_uri = "postgres://localhost:5432/pg_helper_example";
+    let db_uri = "postgres://localhost:5432/pg_setup_example";
 
     let db = PostgresDBBuilder::new(db_uri)
         .schema("public")

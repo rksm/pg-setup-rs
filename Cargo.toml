@@ -1,15 +1,15 @@
 [package]
-name = "pg-helper"
+name = "pg-setup"
 version = "0.1.0"
 edition = "2021"
 
 categories = ["development-tools"]
 exclude = [".dir-locals.el", "DEV.org", "doc/*"]
-homepage = "https://github.com/rksm/pg-helper"
+homepage = "https://github.com/rksm/pg-setup"
 keywords = ["postgres", "sqlx"]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/rksm/pg-helper"
+repository = "https://github.com/rksm/pg-setup"
 description = "Helper to create and drop postgres DBs. Useful for testing."
 
 [dependencies]
