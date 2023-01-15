@@ -1,9 +1,11 @@
-use crate::{db_cmd_strategy::CmdStrategy, error};
+use crate::{db_cmd_strategy::CmdStrategy, error::Result, table_builder::TableBuilder};
 
 /// Trait is used to implement actions of [`PostgresDB`].
+#[async_trait]
 pub(crate) trait DBStrategy {
-    fn setup(&self, db_uri: &str) -> error::Result<()>;
-    fn tear_down(&self, db_uri: &str) -> error::Result<()>;
+    fn setup(&self, db_uri: &str) -> Result<()>;
+    fn tear_down(&self, db_uri: &str) -> Result<()>;
+    async fn execute(&self, db_uri: &str, sql: &str) -> Result<()>;
 }
 
 /// Builder to construct a [`PostgresDB`].
@@ -47,10 +49,10 @@ impl PostgresDBBuilder {
         self
     }
 
-    pub async fn start(self) -> error::Result<PostgresDB> {
+    pub async fn start(self) -> Result<PostgresDB> {
         #[cfg(feature = "sqlx")]
-        let strategy = if self.use_sqlx {
-            Box::new(SqlxStrategy)
+        let strategy: Box<dyn DBStrategy> = if self.use_sqlx {
+            Box::new(crate::db_sqlx_strategy::SqlxStrategy)
         } else {
             Box::new(CmdStrategy)
         };
@@ -77,60 +79,68 @@ pub struct PostgresDB {
 
 impl PostgresDB {
     #[cfg(feature = "sqlx")]
-    pub async fn con(&mut self) -> error::Result<sqlx::PgConnection> {
-        Ok(PgConnectOptions::from_str(&self.db_uri)
-            .unwrap()
-            .disable_statement_logging()
-            .connect()
-            .await?)
+    pub async fn con(&mut self) -> Result<sqlx::PgConnection> {
+        crate::db_sqlx_strategy::connect(&self.db_uri).await
     }
 
     #[cfg(feature = "sqlx")]
-    pub async fn pool(&self) -> error::Result<sqlx::Pool<sqlx::Postgres>> {
-        Ok(PgPoolOptions::new()
-            .max_connections(5)
-            .connect(&self.db_uri)
-            .await?)
+    pub async fn pool(&self) -> Result<sqlx::Pool<sqlx::Postgres>> {
+        crate::db_sqlx_strategy::pool(&self.db_uri).await
     }
 
-    //     pub async fn delete_all_tables(&self) -> error::Result<()> {
-    //         // use sqlx::postgres::PgPoolOptions;
-    //         // use sqlx::{postgres::PgConnectOptions, prelude::*};
+    #[cfg(feature = "sqlx")]
+    pub async fn delete_all_tables(&self) -> Result<()> {
+        // use sqlx::postgres::PgPoolOptions;
+        // use sqlx::{postgres::PgConnectOptions, prelude::*};
 
-    //         info!("WILL DELETE ALL TABLES");
+        info!("WILL DELETE ALL TABLES");
 
-    //         let pool = self.pool().await?;
-    //         let mut t = pool.begin().await?;
+        let pool = self.pool().await?;
+        let mut t = pool.begin().await?;
 
-    //         sqlx::query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
-    //             .execute(&mut t)
-    //             .await?;
+        sqlx::query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+            .execute(&mut t)
+            .await?;
 
-    //         let tables: Vec<(String,)> = sqlx::query_as(
-    //             "
-    // SELECT table_name
-    // FROM information_schema.tables
-    // WHERE table_schema LIKE $1 AND table_type = 'BASE TABLE';",
-    //         )
-    //         .bind(&self.schema)
-    //         .fetch_all(&mut t)
-    //         .await?;
+        let tables: Vec<(String,)> = sqlx::query_as(
+            "
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema LIKE $1 AND table_type = 'BASE TABLE';",
+        )
+        .bind(&self.schema)
+        .fetch_all(&mut t)
+        .await?;
 
-    //         for (table,) in tables {
-    //             sqlx::query(&(format!("delete from {table};")))
-    //                 .execute(&mut t)
-    //                 .await?;
-    //         }
-    //         t.commit().await?;
+        for (table,) in tables {
+            sqlx::query(&(format!("delete from {table};")))
+                .execute(&mut t)
+                .await?;
+        }
+        t.commit().await?;
 
-    //         Ok(())
-    //     }
+        Ok(())
+    }
 
-    pub async fn setup(&self) -> error::Result<()> {
+    pub async fn execute(&self, sql: &str) -> Result<()> {
+        self.strategy.execute(&self.db_uri, sql).await
+    }
+
+    pub async fn create_table<F>(&self, table_name: impl ToString, tbl_callback: F) -> Result<()>
+    where
+        F: Fn(&mut TableBuilder),
+    {
+        let mut table = TableBuilder::new(table_name);
+        tbl_callback(&mut table);
+        let sql = table.to_sql()?;
+        self.execute(sql.as_str()).await
+    }
+
+    pub async fn setup(&self) -> Result<()> {
         self.strategy.setup(&self.db_uri)
     }
 
-    fn tear_down(&self) -> error::Result<()> {
+    fn tear_down(&self) -> Result<()> {
         if self.keep_db {
             return Ok(());
         }

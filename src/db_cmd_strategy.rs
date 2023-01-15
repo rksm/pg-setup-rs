@@ -7,6 +7,7 @@ use crate::{
 
 pub(crate) struct CmdStrategy;
 
+#[async_trait]
 impl DBStrategy for CmdStrategy {
     fn setup(&self, db_uri: &str) -> Result<()> {
         info!("Creating {db_uri}");
@@ -61,6 +62,13 @@ WHERE pg_stat_activity.datname = '{db}'
             ],
         )?
         .wait()?;
+
+        Ok(())
+    }
+
+    async fn execute(&self, db_uri: &str, sql: &str) -> Result<()> {
+        info!("execute {db_uri} {sql}");
+        shell::cmd_with_args("psql", [db_uri, "-c", sql])?.wait()?;
         Ok(())
     }
 }

@@ -30,9 +30,13 @@ mod shell;
 
 #[cfg(feature = "sqlx")]
 mod db_sqlx_strategy;
+mod table_builder;
 
 pub use db::{PostgresDB, PostgresDBBuilder};
 pub use error::{Error, Result};
 
 #[macro_use]
 extern crate tracing;
+
+#[macro_use]
+extern crate async_trait;
