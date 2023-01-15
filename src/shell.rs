@@ -5,6 +5,7 @@ use crate::error::Error;
 
 use super::error::Result;
 
+#[allow(unused)]
 pub fn cmd(cmd: impl AsRef<str>) -> Result<process::Child> {
     trace!("running command {}", cmd.as_ref());
     let mut args = cmd.as_ref().split(' ');
@@ -44,7 +45,7 @@ where
                             break;
                         }
                         Ok(_) => {
-                            print!("{line}");
+                            debug!("{}", line.trim_end());
                             line.clear();
                         }
                     }

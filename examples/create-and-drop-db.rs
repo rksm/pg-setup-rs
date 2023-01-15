@@ -4,11 +4,11 @@ use pg_admin::{PostgresDBBuilder, Result};
 async fn main() -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
-            tracing_subscriber::EnvFilter::builder().parse_lossy("info,pg_admin=trace"),
+            tracing_subscriber::EnvFilter::builder().parse_lossy("info,pg_admin=debug"),
         )
         .init();
 
-    let db_uri = "postgres://robert@localhost:5432/pg_admin_example";
+    let db_uri = "postgres://localhost:5432/pg_admin_example";
 
     let db = PostgresDBBuilder::new(db_uri)
         .schema("public")

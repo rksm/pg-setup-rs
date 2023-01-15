@@ -12,6 +12,7 @@ pub(crate) trait DBStrategy {
 pub struct PostgresDBBuilder {
     db_uri: String,
     keep_db: bool,
+    #[cfg(feature = "sqlx")]
     use_sqlx: bool,
     schema: String,
 }
@@ -21,6 +22,7 @@ impl PostgresDBBuilder {
         Self {
             db_uri: db_uri.to_string(),
             keep_db: false,
+            #[cfg(feature = "sqlx")]
             use_sqlx: false,
             schema: "public".to_string(),
         }
@@ -126,11 +128,11 @@ impl PostgresDB {
         self.strategy.execute(&self.db_uri, sql).await
     }
 
-    pub async fn create_table<F>(&self, table_name: impl ToString, tbl_callback: F) -> Result<()>
+    pub async fn create_table<F>(&self, table_name: impl AsRef<str>, tbl_callback: F) -> Result<()>
     where
         F: Fn(&mut TableBuilder),
     {
-        let mut table = TableBuilder::new(table_name);
+        let mut table = TableBuilder::new(format!("{}.{}", self.schema, table_name.as_ref()));
         tbl_callback(&mut table);
         let sql = table.to_sql()?;
         self.execute(sql.as_str()).await
