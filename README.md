@@ -1,6 +1,6 @@
-# pg-test-utilities
+# pg-admin
 
-Very simple helper to create and drop Postgres databases. Useful for tests.
+Simple helper to create and drop Postgres databases. Useful for tests and for programmatically setting up DBs.
 
 Note: For now this makes use of sqlx, in particular it expects that you have
 [sqlx-cli](https://github.com/launchbadge/sqlx) installed: `cargo install sqlx-cli`.

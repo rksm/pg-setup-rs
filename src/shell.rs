@@ -1,7 +1,5 @@
-use std::{
-    io::{BufRead, Read},
-    process,
-};
+use std::io::{BufRead, Read};
+use std::process;
 
 use crate::error::Error;
 

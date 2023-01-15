@@ -4,6 +4,7 @@ pub enum Error {
     PgUrlParseError(String),
     #[error("Error running process {0}")]
     ProcessError(#[from] std::io::Error),
+    #[cfg(feature = "sqlx")]
     #[error("Sqlx error: {0}")]
     SqlxError(#[from] sqlx::Error),
     #[error("{0}")]
@@ -11,4 +12,4 @@ pub enum Error {
 }
 
 // type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-pub(crate) type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
