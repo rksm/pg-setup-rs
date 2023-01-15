@@ -1,4 +1,7 @@
 * release
 #+begin_src shell
 cargo readme > README.md
+cargo bump patch
+cargo bump minor
+cargo publish
 #+end_src
