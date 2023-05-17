@@ -46,7 +46,7 @@ In case you want to keep the db around for debugging you can call [`PostgresDB::
 
 Will use the `public` schema by default but you can set this with [`PostgresDB::schema`].
 
-!*/
+*/
 
 mod db;
 mod db_cmd_strategy;
