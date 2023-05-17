@@ -20,7 +20,7 @@ impl FromStr for PgDbUrl {
             .map_err(|err: url::ParseError| Error::PgUrlParseError(err.to_string()))?;
 
         let scheme = url.scheme();
-        if scheme != "postgres" {
+        if scheme != "postgres" && scheme != "postgresql" {
             return Err(Error::PgUrlParseError(format!(
                 "expected scheme \"postgres\": {url_string}",
             )));
