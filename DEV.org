@@ -1,7 +1,6 @@
 * release
 #+begin_src shell
 cargo readme > README.md
-cargo bump patch
-cargo bump minor
-cargo publish
+cargo release patch
+cargo release --execute
 #+end_src
